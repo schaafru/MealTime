@@ -291,14 +291,16 @@ def preferences(user):
         match option:
             case 1:
                 with open(f'{user}_allergies.txt', 'w') as f:
-                    print("\nAdding allergies will cause recipes containing those ingredients to not appear in a search!\n")
+                    print("\nAdding allergies will cause recipes containing those ingredients to not appear in a "
+                          "search!\n")
                     print("\nEnter allergies separated by a space: ")
                     allergies = str(input())
                     f.write(allergies)
                     f.close()
             case 2:
                 with open(f'{user}_fav_foods.txt', 'w') as f:
-                    print("\nAdding favorite foods will make those recipes more likely to appear in a search!\n")
+                    print("\nAdvanced option: Adding favorite foods will make those recipes more likely to appear in"
+                          " a search! Editing this may lead to undesirable results!\n")
                     print("\nEnter favorite foods separated by a space: ")
                     fav_foods = str(input())
                     f.write(fav_foods)
