@@ -190,6 +190,7 @@ def recipe_search(user):
                                     f.write(f"Ingredients: {str(df.iloc[row]['Ingredients'])}\n")
                                     f.write(f"Directions: {str(df.iloc[row]['Directions'])}\n")
                                     f.close()
+
                             case 2:
                                 home(user)
                             case _:
@@ -201,6 +202,15 @@ def recipe_search(user):
                         f.write(f"Ingredients: {str(df.iloc[row]['Ingredients'])}\n")
                         f.write(f"Directions: {str(df.iloc[row]['Directions'])}\n")
                         f.close()
+
+                    while True:
+                        print("\n1. Back To Home")
+                        option = int(input())
+                        match option:
+                            case 1:
+                                home(user)
+                            case _:
+                                print("\nCommand not recognized. Try again\n")
                 case 3:
                     recipe_search(user)
                 case 4:
@@ -258,8 +268,11 @@ def profile(user):
 
 
 def saved_recipes(user):
-    with open(f'{user}_saved_recipes.txt', 'r') as f:
-        print(f.readlines())
+    try:
+        with open(f'{user}_saved_recipes.txt', 'r') as f:
+            print(f.readlines())
+    except:
+        print("\nNo saved recipes!")
 
 
 def preferences(user):
