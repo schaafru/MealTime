@@ -1,5 +1,6 @@
 import keyring
 import pandas as pd
+import recipe_finder
 
 
 service_id = "MealTime"
@@ -140,88 +141,55 @@ def recipe_search(user):
     print("|  Recipe Finder |")
     print("------------------\n")
     print("The Recipe Finder finds a recipe within the database that contains every ingredient searched!")
-    print("Enter list of ingredients separated by a space to search:")
+    print("Enter list of ingredients separated by a space to search:\n")
 
-    ingredients = str(input())
-    ingredients = ingredients.split()
-    df = pd.read_excel('recipes.xlsx')
+    ingredients = str(input()).split()
 
-    with open(f'{user}_allergies.txt', 'r+') as f:
-        allergies = f.read()
-        allergies = allergies.split()
-        f.close()
-    with open(f'{user}_fav_foods.txt', 'r+') as f:
-        fav_foods = f.read()
-        fav_foods = fav_foods.split()
-        f.close()
+    try:
+        with open(f'{user}_allergies.txt', 'r+') as f:
+            allergies = f.read()
+            allergies = allergies.split()
+            f.close()
+    except Exception:
+        allergies = ['None']
+    fav_foods = ['None']
 
-    row = 0
-    for i in df.Ingredients:
-        check = check = all(item in i for item in allergies)
-        if check:
-            continue
-        count = len(ingredients)
-        counter = 0
-        for j in ingredients:
-            if j in i:
-                counter += 1
-        if counter == count:
-            print(f"\nrecipe for '{df.iloc[row]['Name']}' found!\n")
-            print("1. View Recipe")
-            print("2. Save Recipe")
-            print("3. Back")
+    # print(f"ingredients: {ingredients}, allergies: {allergies}, fav_foods:{fav_foods}, user: {user}")
+
+    if recipe_finder.recipe_finder(ingredients, allergies, fav_foods, user):
+        # if a recipe was found, function will return True
+        with open(f'{user}_saved_recipe_name.txt', 'r') as f:
+            name = f.read()
+            f.close()
+        print("\nRecipe for ", name, " found!")
+        while True:
+            print("1. View Instructions")
+            print("2. View Ingredients")
+            print("3. Search For A New Recipe")
             print("4. Return To Home\n")
 
             option = int(input())
             match option:
                 case 1:
-                    print(f"Name: {str(df.iloc[row]['Name'])}")
-                    print(f"Ingredients: {str(df.iloc[row]['Ingredients'])}")
-                    print(f"Directions: {str(df.iloc[row]['Directions'])}")
-                    while True:
-                        print("\n1. Save Recipe")
-                        print("2. Back To Home\n")
-                        option = int(input())
-
-                        match option:
-                            case 1:
-                                print(f"\n'{str(df.iloc[row]['Name'])}' has been added to Saved Recipes!")
-                                with open(f'{user}_saved_recipes.txt', 'w') as f:
-                                    f.write(f"Name: {str(df.iloc[row]['Name'])}\n")
-                                    f.write(f"Ingredients: {str(df.iloc[row]['Ingredients'])}\n")
-                                    f.write(f"Directions: {str(df.iloc[row]['Directions'])}\n")
-                                    f.close()
-
-                            case 2:
-                                home(user)
-                            case _:
-                                print("\nCommand not recognized. Try again\n")
-                case 2:
-                    print(f"\n'{str(df.iloc[row]['Name'])}' has been added to Saved Recipes!")
-                    with open(f'{user}_saved_recipes.txt', 'w') as f:
-                        f.write(f"Name: {str(df.iloc[row]['Name'])}\n")
-                        f.write(f"Ingredients: {str(df.iloc[row]['Ingredients'])}\n")
-                        f.write(f"Directions: {str(df.iloc[row]['Directions'])}\n")
+                    with open(f'{user}_saved_recipe_instructions.txt', 'r') as f:
+                        instructions = f.read()
+                        print(instructions)
                         f.close()
-
-                    while True:
-                        print("\n1. Back To Home")
-                        option = int(input())
-                        match option:
-                            case 1:
-                                home(user)
-                            case _:
-                                print("\nCommand not recognized. Try again\n")
+                case 2:
+                    with open(f'{user}_saved_recipe_ingredients.txt', 'r') as f:
+                        ingredients = f.read()
+                        print(ingredients)
+                        f.close()
                 case 3:
                     recipe_search(user)
                 case 4:
                     home(user)
                 case _:
-                    print("\nCommand not recognized. Try again\n")
-        row += 1
-    print("\nNo recipes found!")
+                    print("Command not recognized. Try again")
 
-    # print(f"ingredients: {ingredients}. allergies: {allergies}. favorite foods: {fav_foods}\n")
+    else:
+        # if a recipe wasn't found
+        print("\nNo recipe found!")
 
 
 def recipe_view():
@@ -234,15 +202,12 @@ def profile(user):
     print("|     Profile    |")
     print("------------------")
     try:
-        with open(f'{user}_allergies.txt', 'r+') as f:
+        with open(f'{user}_allergies.txt', 'r') as f:
             allergies = f.read()
             f.close()
-        with open(f'{user}_fav_foods.txt', 'r+') as f:
-            fav_foods = f.read()
-            f.close()
     except Exception:
-        allergies = None
-        fav_foods = None
+        allergies = ""
+    fav_foods = ""
     print(f"Username: {user}")
     print(f"Current Allergies: {allergies}")
     print(f"Favorite Food(s): {fav_foods}")
