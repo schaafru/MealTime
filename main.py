@@ -218,7 +218,7 @@ def recipe_search(user):
             allergies = f.read()
             f.close()
     except Exception:
-        allergies = None
+        allergies = ""
     fav_foods = None
 
     ingredients = input()
