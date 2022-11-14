@@ -1,10 +1,12 @@
 import keyring
-import pandas as pd
-import recipe_finder
+import socket
+import pickle
 
 
 service_id = "MealTime"
 username_key = "key"
+HOST = "127.0.0.1"  # The server's hostname or IP address
+PORT = 65432  # The port used by the server
 
 
 def main():
@@ -135,6 +137,74 @@ def home(user):
                 print("\nCommand not recognized. Try again\n")
 
 
+def information_send(info):
+    """
+    sends list of ingredients and allergy information using socket to microservice
+    """
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((HOST, PORT))
+        send = pickle.dumps(info)
+        s.sendall(send)
+        data = s.recv(4096)
+
+
+def recipe_receive():
+    """
+    receives dictionary from socket containing all information on recipe
+    """
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.bind((HOST, PORT))
+        s.listen()
+        conn, addr = s.accept()
+        with conn:
+            while True:
+                data = conn.recv(4096)
+                if not data:
+                    break
+                data = pickle.loads(data)
+                return data
+
+
+def display_directions(results):
+    """
+    prettifies the directions from results passed to the function and displays to user
+    :param results: dictionary of information for a recipe
+    :return: None
+    """
+    count = 1
+    max = 150
+    directions = results['directions']
+    print(f"The directions for {results['name']} are:\n")
+    for i in directions.split("/n"):
+        print(f"{count}: ", end="")
+        remaining = len(i)
+        start = 0
+        end = 100
+        if len(i) > max:
+            while remaining > max:
+                print(i[start:end])
+                start = end
+                end += max
+                remaining -= max
+            print(i[start:end])
+        count += 1
+        print("")
+
+
+def display_ingredients(results):
+    """
+    prettifies the ingredient list from results passed to the function and displays to user
+    :param results: dictionary of information for a recipe
+    :return: None
+    """
+    count = 1
+    ingredients = results['ingredients']
+    print(f"The ingredients you will need for {results['name']} are:\n")
+    for i in ingredients.split():
+        print(f"{count}: {i}")
+        count += 1
+
+
 def recipe_search(user):
     print("\n")
     print("------------------")
@@ -143,27 +213,25 @@ def recipe_search(user):
     print("The Recipe Finder finds a recipe within the database that contains every ingredient searched!")
     print("Enter list of ingredients separated by a space to search:\n")
 
-    ingredients = str(input()).split()
-
     try:
         with open(f'{user}_allergies.txt', 'r+') as f:
             allergies = f.read()
-            allergies = allergies.split()
             f.close()
     except Exception:
-        allergies = ['None']
-    fav_foods = ['None']
+        allergies = None
+    fav_foods = None
 
-    # print(f"ingredients: {ingredients}, allergies: {allergies}, fav_foods:{fav_foods}, user: {user}")
+    ingredients = input()
+    info = ingredients, allergies
+    information_send(info)
+    results = recipe_receive()
 
-    if recipe_finder.recipe_finder(ingredients, allergies, fav_foods, user):
+    if bool(results):
+        # results = [name: x, ingredients: y, directions: z]
         # if a recipe was found, function will return True
-        with open(f'{user}_saved_recipe_name.txt', 'r') as f:
-            name = f.read()
-            f.close()
-        print("\nRecipe for ", name, " found!")
+        print("\nRecipe for ", results['name'], " found!")
         while True:
-            print("1. View Instructions")
+            print("\n1. View Directions")
             print("2. View Ingredients")
             print("3. Search For A New Recipe")
             print("4. Return To Home\n")
@@ -171,15 +239,9 @@ def recipe_search(user):
             option = int(input())
             match option:
                 case 1:
-                    with open(f'{user}_saved_recipe_instructions.txt', 'r') as f:
-                        instructions = f.read()
-                        print(instructions)
-                        f.close()
+                    display_directions(results)
                 case 2:
-                    with open(f'{user}_saved_recipe_ingredients.txt', 'r') as f:
-                        ingredients = f.read()
-                        print(ingredients)
-                        f.close()
+                    display_ingredients(results)
                 case 3:
                     recipe_search(user)
                 case 4:
@@ -189,11 +251,18 @@ def recipe_search(user):
 
     else:
         # if a recipe wasn't found
-        print("\nNo recipe found!")
+        print("\nNo recipe found!\n")
+        print("1. Search using different ingredients")
+        print("2. Return to Home")
 
-
-def recipe_view():
-    pass
+        option = int(input())
+        match option:
+            case 1:
+                recipe_search(user)
+            case 2:
+                home(user)
+            case _:
+                print("Command not recognized. Try again")
 
 
 def profile(user):
@@ -237,7 +306,7 @@ def saved_recipes(user):
     try:
         with open(f'{user}_saved_recipes.txt', 'r') as f:
             print(f.readlines())
-    except:
+    except Exception:
         print("\nNo saved recipes!")
 
 
