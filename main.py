@@ -171,24 +171,10 @@ def display_directions(results):
     :param results: dictionary of information for a recipe
     :return: None
     """
-    count = 1
-    max = 150
     directions = results['directions']
     print(f"The directions for {results['name']} are:\n")
-    for i in directions.split("/n"):
-        print(f"{count}: ", end="")
-        remaining = len(i)
-        start = 0
-        end = 100
-        if len(i) > max:
-            while remaining > max:
-                print(i[start:end])
-                start = end
-                end += max
-                remaining -= max
-            print(i[start:end])
-        count += 1
-        print("")
+    for i in directions.split("."):
+        print(i)
 
 
 def display_ingredients(results):
@@ -219,7 +205,6 @@ def recipe_search(user):
             f.close()
     except Exception:
         allergies = ""
-    fav_foods = None
 
     ingredients = input()
     info = ingredients, allergies
@@ -233,7 +218,7 @@ def recipe_search(user):
         while True:
             print("\n1. View Directions")
             print("2. View Ingredients")
-            print("3. Search For A New Recipe")
+            print("3. Save Recipe")
             print("4. Return To Home\n")
 
             option = int(input())
@@ -243,7 +228,7 @@ def recipe_search(user):
                 case 2:
                     display_ingredients(results)
                 case 3:
-                    recipe_search(user)
+                    save_to_recipes(user, results)
                 case 4:
                     home(user)
                 case _:
@@ -290,7 +275,8 @@ def profile(user):
         option = int(input())
         match option:
             case 1:
-                saved_recipes(user)
+                view_saved_recipes(user)
+                home(user)
             case 2:
                 preferences(user)
             case 3:
@@ -302,7 +288,20 @@ def profile(user):
                 print("Command not recognized. Try again")
 
 
-def saved_recipes(user):
+def save_to_recipes(user, recipe):
+    """
+
+    :param user: username of current login
+    :param recipe: dictionary of recipe last viewed in format [name: x, ingredients: y, directions: z]
+    :return: None
+    """
+    print(f"\n{recipe['name']} saved to recipes!")
+    with open(f'{user}_saved_recipes.txt', 'w') as f:
+        f.write(f"{recipe}")
+        f.close()
+
+
+def view_saved_recipes(user):
     try:
         with open(f'{user}_saved_recipes.txt', 'r') as f:
             print(f.readlines())

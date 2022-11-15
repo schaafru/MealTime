@@ -16,12 +16,13 @@ def ingredients_getter():
         s.listen()
         conn, addr = s.accept()
         with conn:
-            # print(f"Connected by {addr}")
+            print(f"Connected by {addr} to main.py")
             while True:
                 data = conn.recv(4096)
                 if not data:
                     break
                 data = pickle.loads(data)
+                print(f"data received from main.py: {data}")
                 return data
 
 
@@ -35,7 +36,7 @@ def recipe_returner(ingredients, allergies):
     recipe = ""
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect((HOST, PORT))
-        df = pd.read_excel('recipes.xlsx')
+        df = pd.read_excel('recipes_test.xlsx')
         row = 0
         for j in df.Ingredients:
             ingredient_match = 0
@@ -46,31 +47,24 @@ def recipe_returner(ingredients, allergies):
                     continue
             else:
                 for i in ingredients.split():
-                    # print(i)
                     words = j.split()
                     for k in words:
-                        # print(k)
-
-                        ####COULD NOT A WRONG FIX#####
                         if i in k:
-                            # print(f"match! i:{i} j:{k}")
                             ingredient_match += 1
-                    # print(f"ingredient_match: {ingredient_match}")
-                    # print(f"len(ingredients): {len(ingredients.split())}")
                     if ingredient_match == len(ingredients.split()):
-                        recipe = {'name': str(df.iloc[row]['Name']), 'ingredients': str(df.iloc[row]['Ingredients']),
+                        recipe = {'name': str(df.iloc[row]['Title']), 'ingredients': str(df.iloc[row]['Ingredients']),
                                   'directions': str(df.iloc[row]['Directions'])}
-                        # print(f"this is the send from recipe finder: {recipe}")
                 row += 1
-        send = pickle.dumps(recipe)
-        s.sendall(send)
-        data = s.recv(4096)
+        if recipe == "":
+            print("No recipe found for ingredients and allergies given")
+        else:
+            print(f"data being sent back to main.py: {recipe}")
+            send = pickle.dumps(recipe)
+            s.sendall(send)
+            data = s.recv(4096)
 
 
 info = ingredients_getter()
-# print(f"info: {info}")
 ingredients = info[0]
-# print(f"ingredients: {ingredients}")
 allergies = info[1]
-# print(f"allergies: {allergies}")
 recipe_returner(ingredients, allergies)
