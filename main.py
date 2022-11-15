@@ -186,7 +186,7 @@ def display_ingredients(results):
     count = 1
     ingredients = results['ingredients']
     print(f"The ingredients you will need for {results['name']} are:\n")
-    for i in ingredients.split():
+    for i in ingredients.split(","):
         print(f"{count}: {i}")
         count += 1
 

@@ -28,7 +28,7 @@ def ingredients_getter():
 
 def recipe_returner(ingredients_search, allergies):
     """
-    :param ingredients: string from user input
+    :param ingredients_search: string from user input
     :param allergies: string for user input
     :return: a dictionary of recipe information as [name: , ingredients: , directions: ]
     """
