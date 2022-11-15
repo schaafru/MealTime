@@ -26,45 +26,43 @@ def ingredients_getter():
                 return data
 
 
-def recipe_returner(ingredients, allergies):
+def recipe_returner(ingredients_search, allergies):
     """
     :param ingredients: string from user input
     :param allergies: string for user input
     :return: a dictionary of recipe information as [name: , ingredients: , directions: ]
     """
 
-    recipe = ""
+    result = ""
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.connect((HOST, PORT))
+        s.connect((HOST, PORT + 1))
         df = pd.read_excel('recipes_test.xlsx')
         row = 0
-        for j in df.Ingredients:
-            ingredient_match = 0
-            if len(allergies) != 0:
-                check = all(item in j.split() for item in allergies.split())
-                if check:
-                    row += 1
-                    continue
-            else:
-                for i in ingredients.split():
-                    words = j.split()
-                    for k in words:
-                        if i in k:
-                            ingredient_match += 1
-                    if ingredient_match == len(ingredients.split()):
-                        recipe = {'name': str(df.iloc[row]['Title']), 'ingredients': str(df.iloc[row]['Ingredients']),
-                                  'directions': str(df.iloc[row]['Directions'])}
-                row += 1
-        if recipe == "":
+        for ingredient_list in df.Ingredients:
+            match = 0
+            for ingredient in ingredients_search.split():
+                for allergy in allergies.split():
+                    if allergy in ingredient_list:
+                        row += 1
+                        continue
+                if ingredient in ingredient_list:
+                    match += 1
+            if match == len(ingredients_search.split()):
+                result = {'name': str(df.iloc[row]['Title']), 'ingredients': str(df.iloc[row]['Ingredients']),
+                          'directions': str(df.iloc[row]['Directions'])}
+                break
+            row += 1
+        if result == "":
             print("No recipe found for ingredients and allergies given")
         else:
-            print(f"data being sent back to main.py: {recipe}")
-            send = pickle.dumps(recipe)
+            print(f"data being sent back to main.py: {result}")
+            send = pickle.dumps(result)
             s.sendall(send)
             data = s.recv(4096)
 
 
-info = ingredients_getter()
-ingredients = info[0]
-allergies = info[1]
-recipe_returner(ingredients, allergies)
+while True:
+    info = ingredients_getter()
+    ingredients = info[0]
+    allergies = info[1]
+    recipe_returner(ingredients, allergies)

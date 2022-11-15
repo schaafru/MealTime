@@ -153,7 +153,7 @@ def recipe_receive():
     receives dictionary from socket containing all information on recipe
     """
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.bind((HOST, PORT))
+        s.bind((HOST, PORT + 1))
         s.listen()
         conn, addr = s.accept()
         with conn:
@@ -214,7 +214,7 @@ def recipe_search(user):
     if bool(results):
         # results = [name: x, ingredients: y, directions: z]
         # if a recipe was found, function will return True
-        print("\nRecipe for ", results['name'], " found!")
+        print("\nRecipe for '" + results['name'] + "' found!")
         while True:
             print("\n1. View Directions")
             print("2. View Ingredients")
@@ -261,6 +261,7 @@ def profile(user):
             f.close()
     except Exception:
         allergies = ""
+
     fav_foods = ""
     print(f"Username: {user}")
     print(f"Current Allergies: {allergies}")
@@ -295,7 +296,7 @@ def save_to_recipes(user, recipe):
     :param recipe: dictionary of recipe last viewed in format [name: x, ingredients: y, directions: z]
     :return: None
     """
-    print(f"\n{recipe['name']} saved to recipes!")
+    print(f"\n'{recipe['name']}' saved to recipes!")
     with open(f'{user}_saved_recipes.txt', 'w') as f:
         f.write(f"{recipe}")
         f.close()

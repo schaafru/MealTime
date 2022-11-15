@@ -1,12 +1,13 @@
-import pandas as pd
+ingredients = "Combine the milk and breadcrumbs. Place the breadcrumbs in a small bowl, pour in the milk, and stir to combine. Set aside while preparing"
+letters = len(ingredients)
+remaining = len(ingredients)
+start = 0
+end = 100
 
-
-list = ['beef', 'pork']
-# list.append("milk")
-# print(list)
-
-df = pd.read_excel('recipes.xlsx')
-
-print(df.iloc[1]['Name'])
-print(df.iloc[1]['Ingredients'])
-print(df.iloc[1]['Directions'])
+if letters > 100:
+    while remaining > 100:
+        print(ingredients[start:end])
+        start = end
+        end += 100
+        remaining -= 100
+    print(ingredients[start:end])
