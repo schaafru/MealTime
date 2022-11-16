@@ -200,7 +200,7 @@ def recipe_search(user):
     print("Enter list of ingredients separated by a space to search:\n")
 
     try:
-        with open(f'{user}_allergies.txt', 'r+') as f:
+        with open(f'users/{user}_allergies.txt', 'r+') as f:
             allergies = f.read()
             f.close()
     except Exception:
@@ -256,7 +256,7 @@ def profile(user):
     print("|     Profile    |")
     print("------------------")
     try:
-        with open(f'{user}_allergies.txt', 'r') as f:
+        with open(f'users/{user}_allergies.txt', 'r') as f:
             allergies = f.read()
             f.close()
     except Exception:
@@ -297,14 +297,14 @@ def save_to_recipes(user, recipe):
     :return: None
     """
     print(f"\n'{recipe['name']}' saved to recipes!")
-    with open(f'{user}_saved_recipes.txt', 'w') as f:
+    with open(f'users/{user}_saved_recipes.txt', 'w') as f:
         f.write(f"{recipe}")
         f.close()
 
 
 def view_saved_recipes(user):
     try:
-        with open(f'{user}_saved_recipes.txt', 'r') as f:
+        with open(f'users/{user}_saved_recipes.txt', 'r') as f:
             print(f.readlines())
     except Exception:
         print("\nNo saved recipes!")
@@ -324,7 +324,7 @@ def preferences(user):
         option = int(input())
         match option:
             case 1:
-                with open(f'{user}_allergies.txt', 'w') as f:
+                with open(f'users/{user}_allergies.txt', 'w') as f:
                     print("\nAdding allergies will cause recipes containing those ingredients to not appear in a "
                           "search!\n")
                     print("\nEnter allergies separated by a space: ")
@@ -332,7 +332,7 @@ def preferences(user):
                     f.write(allergies)
                     f.close()
             case 2:
-                with open(f'{user}_fav_foods.txt', 'w') as f:
+                with open(f'users/{user}_fav_foods.txt', 'w') as f:
                     print("\nAdvanced option: Adding favorite foods will make those recipes more likely to appear in"
                           " a search! Editing this may lead to undesirable results!\n")
                     print("\nEnter favorite foods separated by a space: ")
