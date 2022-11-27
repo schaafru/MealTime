@@ -36,7 +36,7 @@ def recipe_returner(ingredients_search, allergies):
     result = ""
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect((HOST, PORT + 1))
-        df = pd.read_excel('recipes_test.xlsx')
+        df = pd.read_excel('recipes.xlsx')
         row = 0
         for ingredient_list in df.Ingredients:
             match = 0

@@ -18,10 +18,16 @@ def main():
 
 def welcome():
     print("\n")
-    print("--------------------------------------------------------------------------")
-    print("|                     Thank you for using MealTime!                      |")
-    print("|          The one stop shop for all your recipe finding needs           |")
-    print("--------------------------------------------------------------------------\n")
+    print(".___  ___.  _______     ___       __      .___________. __  .___  ___.  _______")
+    print("|   \/   | |   ____|   /   \     |  |     |           ||  | |   \/   | |   ____|")
+    print("|  \  /  | |  |__     /  ^  \    |  |     `---|  |----`|  | |  \  /  | |  |__")
+    print("|  |\/|  | |   __|   /  /_\  \   |  |         |  |     |  | |  |\/|  | |   __|")
+    print("|  |  |  | |  |____ /  _____  \  |  `----.    |  |     |  | |  |  |  | |  |____")
+    print("|__|  |__| |_______/__/     \__\ |_______|    |__|     |__| |__|  |__| |_______|")
+    print("   --------------------------------------------------------------------------")
+    print("   |                     Thank you for using MealTime!                      |")
+    print("   |          The one stop shop for all your recipe finding needs           |")
+    print("   --------------------------------------------------------------------------\n")
     print("1. Login")
     print("2. Create Account")
     print("3. Exit\n")
@@ -206,7 +212,15 @@ def recipe_search(user):
     except Exception:
         allergies = ""
 
+    try:
+        with open(f'users/{user}_pantry.txt', 'r+') as f:
+            pantry_items = f.read()
+            f.close()
+    except Exception:
+        pantry_items = ""
+
     ingredients = input()
+    ingredients = ingredients + " " + pantry_items
     info = ingredients, allergies
     information_send(info)
     results = recipe_receive()
@@ -250,6 +264,45 @@ def recipe_search(user):
                 print("Command not recognized. Try again")
 
 
+def pantry(user):
+    print("\n")
+    print("------------------")
+    print("|     Pantry     |")
+    print("------------------\n")
+    print("Your current pantry items are: ")
+
+    try:
+        with open(f'users/{user}_pantry.txt', 'r') as f:
+            pantry_items = f.read()
+            f.close()
+    except Exception:
+        pantry_items = ""
+
+    if not pantry_items:
+        print("empty pantry")
+
+    else:
+        print(pantry_items)
+
+    while True:
+        print("\n1. Update Pantry Items")
+        print("2. Return To Profile")
+
+        option = int(input())
+        match option:
+            case 1:
+                print("Enter your pantry items:")
+                pantry_items = input()
+                with open(f'users/{user}_pantry.txt', 'w') as f:
+                    f.write(pantry_items)
+                    f.close()
+                pantry(user)
+            case 2:
+                profile(user)
+            case _:
+                print("Command not recognized. Try again")
+
+
 def profile(user):
     print("\n")
     print("------------------")
@@ -269,9 +322,10 @@ def profile(user):
 
     while True:
         print("\n1. View Saved Recipes")
-        print("2. Edit Preferences")
-        print("3. Return To Home")
-        print("4. Logout\n")
+        print("2. Update Pantry")
+        print("3. Edit Preferences")
+        print("4. Return To Home")
+        print("5. Logout\n")
 
         option = int(input())
         match option:
@@ -279,10 +333,12 @@ def profile(user):
                 view_saved_recipes(user)
                 home(user)
             case 2:
-                preferences(user)
+                pantry(user)
             case 3:
-                home(user)
+                preferences(user)
             case 4:
+                home(user)
+            case 5:
                 print("You have been securely logged out")
                 login(0)
             case _:
