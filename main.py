@@ -121,9 +121,12 @@ def create_account():
 
 def home(user):
     print("\n")
-    print("------------------")
-    print("|    MealTime    |")
-    print("------------------")
+    print(".___  ___.  _______     ___       __      .___________. __  .___  ___.  _______")
+    print("|   \/   | |   ____|   /   \     |  |     |           ||  | |   \/   | |   ____|")
+    print("|  \  /  | |  |__     /  ^  \    |  |     `---|  |----`|  | |  \  /  | |  |__")
+    print("|  |\/|  | |   __|   /  /_\  \   |  |         |  |     |  | |  |\/|  | |   __|")
+    print("|  |  |  | |  |____ /  _____  \  |  `----.    |  |     |  | |  |  |  | |  |____")
+    print("|__|  |__| |_______/__/     \__\ |_______|    |__|     |__| |__|  |__| |_______|\n")
 
     while True:
         print("\n1. Search for Recipes")
@@ -189,12 +192,15 @@ def display_ingredients(results):
     :param results: dictionary of information for a recipe
     :return: None
     """
-    count = 1
     ingredients = results['ingredients']
     print(f"The ingredients you will need for {results['name']} are:\n")
-    for i in ingredients.split(","):
-        print(f"{count}: {i}")
-        count += 1
+    for i in ingredients.split("@"):
+        if i[0] == "[":
+            i = " " + i[1:]
+        length = len(i) - 1
+        if i[length] == "]":
+            i = i[:-1]
+        print(f"   {i}")
 
 
 def recipe_search(user):
@@ -202,7 +208,6 @@ def recipe_search(user):
     print("------------------")
     print("|  Recipe Finder |")
     print("------------------\n")
-    print("The Recipe Finder finds a recipe within the database that contains every ingredient searched!")
     print("Enter list of ingredients separated by a space to search:\n")
 
     try:
