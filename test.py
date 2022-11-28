@@ -1,13 +1,19 @@
-ingredients = "Combine the milk and breadcrumbs. Place the breadcrumbs in a small bowl, pour in the milk, and stir to combine. Set aside while preparing"
-letters = len(ingredients)
-remaining = len(ingredients)
-start = 0
-end = 100
+import pandas as pd
 
-if letters > 100:
-    while remaining > 100:
-        print(ingredients[start:end])
-        start = end
-        end += 100
-        remaining -= 100
-    print(ingredients[start:end])
+df = pd.read_excel('test.xlsx')
+
+row = 0
+count = 1
+for ingredient in df.Ingredients:
+    if "chicken" in ingredient.split():
+        ingredients = df.iloc[row]['Ingredients']
+        break
+
+
+for i in ingredients.split("@"):
+    if i[0] == "[":
+        i = i[1:]
+    length = len(i) - 1
+    if i[length] == "]":
+        i = i[:-1]
+    print(i)
