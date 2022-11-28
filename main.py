@@ -1,12 +1,16 @@
 import keyring
 import socket
 import pickle
-
+import os
 
 service_id = "MealTime"
 username_key = "key"
 HOST = "127.0.0.1"  # The server's hostname or IP address
 PORT = 65432  # The port used by the server
+
+
+def clear():
+    print("\n" * 100)
 
 
 def main():
@@ -47,6 +51,7 @@ def welcome():
 
 
 def login(ease_of_use):
+    clear()
     print("\n")
     print("-----------------")
     print("|     LOGIN     |")
@@ -96,6 +101,7 @@ def login(ease_of_use):
 
 
 def create_account():
+    clear()
     print("\n")
     print("------------------")
     print("| CREATE ACCOUNT |")
@@ -120,6 +126,7 @@ def create_account():
 
 
 def home(user):
+    clear()
     print("\n")
     print(".___  ___.  _______     ___       __      .___________. __  .___  ___.  _______")
     print("|   \/   | |   ____|   /   \     |  |     |           ||  | |   \/   | |   ____|")
@@ -180,6 +187,7 @@ def display_directions(results):
     :param results: dictionary of information for a recipe
     :return: None
     """
+    clear()
     directions = results['directions']
     print(f"The directions for {results['name']} are:\n")
     for i in directions.split("."):
@@ -192,18 +200,19 @@ def display_ingredients(results):
     :param results: dictionary of information for a recipe
     :return: None
     """
+    clear()
+    count = 0
     ingredients = results['ingredients']
     print(f"The ingredients you will need for {results['name']} are:\n")
     for i in ingredients.split("@"):
-        if i[0] == "[":
-            i = " " + i[1:]
-        length = len(i) - 1
-        if i[length] == "]":
-            i = i[:-1]
+        if count == 0:
+            i += " " + i
         print(f"   {i}")
+        count += 1
 
 
 def recipe_search(user):
+    clear()
     print("\n")
     print("------------------")
     print("|  Recipe Finder |")
@@ -224,8 +233,7 @@ def recipe_search(user):
     except Exception:
         pantry_items = ""
 
-    ingredients = input()
-    ingredients = ingredients + " " + pantry_items
+    ingredients = input() + " " + pantry_items
     info = ingredients, allergies
     information_send(info)
     results = recipe_receive()
@@ -270,11 +278,11 @@ def recipe_search(user):
 
 
 def pantry(user):
+    clear()
     print("\n")
     print("------------------")
     print("|     Pantry     |")
     print("------------------\n")
-    print("Your current pantry items are: ")
 
     try:
         with open(f'users/{user}_pantry.txt', 'r') as f:
@@ -284,14 +292,16 @@ def pantry(user):
         pantry_items = ""
 
     if not pantry_items:
-        print("empty pantry")
+        print("Your pantry is currently empty")
 
     else:
+        print("Your current pantry items are:")
         print(pantry_items)
 
     while True:
         print("\n1. Update Pantry Items")
-        print("2. Return To Profile")
+        print("2. About Pantry")
+        print("3. Return To Profile")
 
         option = int(input())
         match option:
@@ -303,16 +313,23 @@ def pantry(user):
                     f.close()
                 pantry(user)
             case 2:
+                print("\nIngredients included in your Pantry will conveniently be added to recipe")
+                print("searches without the need of typing them in each time. Pantry items")
+                print("should contain common ingredients that are typically on hand")
+            case 3:
                 profile(user)
             case _:
                 print("Command not recognized. Try again")
 
 
 def profile(user):
+    clear()
     print("\n")
-    print("------------------")
-    print("|     Profile    |")
-    print("------------------")
+    print(" ___             __  _  _")
+    print("| _ \ _ _  ___  / _|(_)| | ___")
+    print("|  _/| '_|/ _ \|  _|| || |/ -_)")
+    print("|_|  |_|  \___/|_|  |_||_|\___|")
+
     try:
         with open(f'users/{user}_allergies.txt', 'r') as f:
             allergies = f.read()
@@ -320,14 +337,15 @@ def profile(user):
     except Exception:
         allergies = ""
 
-    fav_foods = ""
     print(f"Username: {user}")
-    print(f"Current Allergies: {allergies}")
-    print(f"Favorite Food(s): {fav_foods}")
+    if not allergies:
+        print("Current Allergies: None")
+    else:
+        print(f"Current Allergies: {allergies}")
 
     while True:
         print("\n1. View Saved Recipes")
-        print("2. Update Pantry")
+        print("2. View Pantry")
         print("3. Edit Preferences")
         print("4. Return To Home")
         print("5. Logout\n")
@@ -352,11 +370,11 @@ def profile(user):
 
 def save_to_recipes(user, recipe):
     """
-
     :param user: username of current login
     :param recipe: dictionary of recipe last viewed in format [name: x, ingredients: y, directions: z]
     :return: None
     """
+    clear()
     print(f"\n'{recipe['name']}' saved to recipes!")
     with open(f'users/{user}_saved_recipes.txt', 'w') as f:
         f.write(f"{recipe}")
@@ -372,6 +390,7 @@ def view_saved_recipes(user):
 
 
 def preferences(user):
+    clear()
     print("\n")
     print("------------------")
     print("|   Preferences  |")
@@ -379,8 +398,7 @@ def preferences(user):
 
     while True:
         print("1. Enter Allergies")
-        print("2. Enter Favorite Foods")
-        print("3. Return To Profile\n")
+        print("2. Return To Profile\n")
 
         option = int(input())
         match option:
@@ -393,14 +411,6 @@ def preferences(user):
                     f.write(allergies)
                     f.close()
             case 2:
-                with open(f'users/{user}_fav_foods.txt', 'w') as f:
-                    print("\nAdvanced option: Adding favorite foods will make those recipes more likely to appear in"
-                          " a search! Editing this may lead to undesirable results!\n")
-                    print("\nEnter favorite foods separated by a space: ")
-                    fav_foods = str(input())
-                    f.write(fav_foods)
-                    f.close()
-            case 3:
                 profile(user)
             case _:
                 print("Command not recognized. Try again")

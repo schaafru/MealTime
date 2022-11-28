@@ -39,6 +39,7 @@ def recipe_returner(ingredients_search, allergies):
         df = pd.read_excel('test.xlsx')
         row = 0
         for ingredient_list in df.Ingredients:
+            ingredient_list = str(ingredient_list)
             match = 0
             for ingredient in ingredients_search.split():
                 for allergy in allergies.split():
